@@ -1,7 +1,7 @@
 USE GroceryPlannerDB;
 GO -- finish creating/selecting the database before running scripts.
 
-IF OBJECT_ID(N'dbo.Stores',N'U') IS NULL BEGIN
+IF OBJECT_ID(N'dbo.Stores',N'U') IS NULL BEGIN --OBJECT_ID looks at the internal 
 CREATE TABLE Stores(StoreID INT PRIMARY KEY IDENTITY(1,1), -- IDENTITY handles the auto incrementing ID. (1,1) means that the starting value will be 1 and it will increment by 1 for each row.
 					StoreName NVARCHAR(100) NOT NULL,
 					StreetAddress NVARCHAR(255),
