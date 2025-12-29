@@ -22,7 +22,7 @@ def main_menu():
         elif choice == '2':
             items = db.get_all_items()
             for item in items:
-                print(f"{item.name} ({item.weight_or_count} {item.units})")
+                print(f"{item.name} ({item.weight_or_count} {item.units}), {item.department_location} department.")
         elif choice == '3':
             break
 
