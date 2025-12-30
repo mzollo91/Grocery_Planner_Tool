@@ -12,7 +12,11 @@ def main_menu():
 
         if choice == '1':
             name = input("Item Name: ")
-            weight_or_count = input("Item weight or count per package: ")
+            try:
+                weight_or_count = float(input("Item weight or count per package: "))
+            except ValueError:
+                print("Invalid input, please enter a number for weight.")
+                continue
             units = input("Units: ")
             department_location = input("OPTIONAL Department location in store: ")
 
