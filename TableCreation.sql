@@ -25,6 +25,19 @@ CREATE TABLE Prices(PriceID INT PRIMARY KEY IDENTITY(1,1),
 					Price DECIMAL(10,2) NOT NULL,
 					DateRecorded DATE DEFAULT GETDATE(), -- Defaults to today's date.
 
-					CONSTRAINT FK_Price_Item FOREIGN KEY(ItemID) REFERENCES Items(ItemID), -- Defining the Foreing Keys to link back to the other tables.
-					CONSTRAINT FK_Price_Store FOREIGN KEY(StoreID) REFERENCES Stores(StoreID));
+					CONSTRAINT FK_Price_Item FOREIGN KEY(ItemID) REFERENCES Items(ItemID) ON DELETE CASCADE, -- Defining the Foreing Keys to link back to the other tables.
+					CONSTRAINT FK_Price_Store FOREIGN KEY(StoreID) REFERENCES Stores(StoreID) ON DELETE CASCADE);
 END
+
+-- Commands to alter constraints on the created tables
+ALTER TABLE Prices
+DROP CONSTRAINT FK_Price_Item;
+
+ALTER TABLE Prices
+ADD CONSTRAINT FK_Price_Item FOREIGN KEY (ItemID) REFERENCES Items(ItemID) ON DELETE CASCADE;
+
+ALTER TABLE Prices
+DROP CONSTRAINT FK_Price_Store;
+
+ALTER TABLE Prices
+ADD CONSTRAINT FK_Price_Store FOREIGN KEY (StoreID) REFERENCES Stores(StoreID) ON DELETE CASCADE;

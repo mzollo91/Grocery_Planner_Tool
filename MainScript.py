@@ -7,7 +7,9 @@ def main_menu():
         print("\n--- Grocery Planner CLI ---")
         print("1. Add Item")
         print("2. View All Items")
-        print("3. Exit")
+        print("3. Delete Item")
+        print("4. Search Item")
+        print("5. Exit")
         choice = input("Select an option: ")
 
         if choice == '1':
@@ -27,7 +29,25 @@ def main_menu():
             items = db.get_all_items()
             for item in items:
                 print(f"{item.name} ({item.weight_or_count} {item.units}), {item.department_location} department.")
+
         elif choice == '3':
+            name = input(f"Enter the exact name of the item to delete: ")
+            confirm = input(f"Are you sure want to delete '{name}'? (y/n): ")
+            if confirm.lower() == 'y':
+                db.delete_item(name)
+            else:
+                print("Deletion cancelled.")
+
+        elif choice == '4':
+            name = input("Enter item to search: ")
+            found_items = db.search_items(name)
+            if found_items:
+                for item in found_items:
+                    print(f"{item.name} ({item.weight_or_count} {item.units}), {item.department_location} department.")
+            else:
+                print(f"{name} not found in database.")
+
+        elif choice == '5':
             break
 
 main_menu()
