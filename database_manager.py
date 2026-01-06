@@ -31,10 +31,13 @@ class DatabaseManager:
                     cursor.execute(sql,params)
                     conn.commit()
                     print(f"Successfully saved {item.name} to the database.")
+                    return True
                 except pyodbc.IntegrityError:
                     print(f"Note: {item.name} exists in the current database and was not added.")
+                    return False
                 except Exception as e:
                     print(f"An unexpected error occurred: {e}")
+                    return False
 
     def get_all_items(self):
         # Fetches all rows and converts them to Grocery_Item objects
@@ -94,3 +97,39 @@ class DatabaseManager:
                     print(f"A SQL specific error occurred: {err}")
                 except Exception as e:
                     print(f"An unexpected error occurred: {e}")
+
+    def insert_store(self, store):
+    # Take Stores object and persists it to SQL
+        sql = """
+                INSERT INTO Stores (StoreName, StreetAddress, City, State, ZipCode) VALUES (?, ?, ?, ?, ?)
+                """
+        params = (store.name, store.street_address, store.city, store.state, store.zip_code)
+        with pyodbc.connect(self.conn_str) as conn:
+            with conn.cursor() as cursor:
+                try:
+                    cursor.execute(sql,params)
+                    conn.commit()
+                    print(f"Successfully saved {store.name} to the database.")
+                    return True
+                except pyodbc.IntegrityError:
+                    print(f"Note: {store.name} exists in the current database and was not added.")
+                    return False
+                except pyodbc.Error as e:
+                    print(f"Database error: {e}")
+                    return False
+
+    def get_all_stores(self):
+        # Fetches all rows and converts them to Stores objects
+        from Stores import store
+
+        stores = []
+        sql = "SELECT StoreName, StreetAddress, City, State, ZipCode, StoreID FROM Stores"
+
+        with pyodbc.connect(self.conn_str) as conn:
+                with conn.cursor() as cursor:
+                    cursor.execute(sql)
+                    rows = cursor.fetchall()
+                    for row in rows:
+                        new_obj = store(row[0], row[1], row[2], row[3], row[4], row[5])
+                        stores.append(new_obj)
+                    return stores

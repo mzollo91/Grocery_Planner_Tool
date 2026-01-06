@@ -28,7 +28,8 @@ def main_menu():
         elif choice == '2':
             items = db.get_all_items()
             for item in items:
-                print(f"{item.name} ({item.weight_or_count} {item.units}), {item.department_location} department.")
+                print(item)
+                #print(f"{item.name} ({item.weight_or_count} {item.units}), {item.department_location} department.")
 
         elif choice == '3':
             name = input(f"Enter the exact name of the item to delete: ")

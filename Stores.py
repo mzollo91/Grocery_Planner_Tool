@@ -6,3 +6,9 @@ class store:
         self.city = city
         self.state = state
         self.zip_code = zip_code
+
+    def __repr__(self):
+        return f"<Store: {self.name}, ({self.zip_code})>"
+
+    def save_to_db(self, db_manager):
+        db_manager.insert_store(self)

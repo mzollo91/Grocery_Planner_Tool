@@ -6,5 +6,8 @@ class grocery_item:
         self.units = units
         self.item_id = item_id # Database primary key
 
+    def __repr__(self):
+        return f"<Item: {self.name}, {self.weight_or_count} {self.units}, in {self.department_location}>"
+    
     def save_to_db(self, db_manager):
         db_manager.insert_item(self)
