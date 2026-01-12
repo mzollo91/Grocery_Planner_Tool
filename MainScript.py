@@ -1,5 +1,5 @@
 from Grocery_Item import grocery_item
-from Stores import store
+from Stores import store_cl
 from database_manager import DatabaseManager
 import configparser
 
@@ -109,8 +109,7 @@ def store_submenu(db):
                     print("Enter the two letter abbreviation for the state.")
 
             zip_code = input("Zip Code: ")
-
-            new_store = store(name=name, street_address=street_address,city=city, state=state, zip_code=zip_code)
+            new_store = store_cl(name=name, street_address=street_address,city=city, state=state, zip_code=zip_code)
             new_store.save_to_db(db)
 
         elif choice == '2':

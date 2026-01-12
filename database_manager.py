@@ -48,7 +48,7 @@ class DatabaseManager:
         sql = """
               DELETE FROM Items WHERE ItemName = ?
               """
-        params = (f"{item_name}")
+        params = (item_name,)
 
         try:
             with pyodbc.connect(self.conn_str) as conn:
@@ -109,7 +109,7 @@ class DatabaseManager:
 
     def get_all_stores(self):
         # Fetches all rows and converts them to Stores objects
-        from Stores import store
+        from Stores import store_cl
 
         stores = []
         sql = "SELECT StoreName, StreetAddress, City, State, ZipCode, StoreID FROM Stores"
@@ -119,6 +119,49 @@ class DatabaseManager:
                     cursor.execute(sql)
                     rows = cursor.fetchall()
                     for row in rows:
-                        new_obj = store(row[0], row[1], row[2], row[3], row[4], row[5])
+                        new_obj = store_cl(row[0], row[1], row[2], row[3], row[4], row[5])
                         stores.append(new_obj)
                     return stores
+
+    def delete_store(self, store_name):
+        sql = """
+              DELETE FROM Stores WHERE StoreName = ?
+              """
+        params = (store_name,)
+
+        try:
+            with pyodbc.connect(self.conn_str) as conn:
+                with conn.cursor() as cursor:
+                    cursor.execute(sql,params)
+                    if cursor.rowcount == 0: # cursor.rowcount doesn't give the number of rows in the db, it gives the number of rows affected by the query.
+                        print(f"{store_name} does not exist in the database.")
+                        return False
+                    conn.commit()
+                    print(f"Successfully deleted {store_name} from the database.")
+                    return True
+        except Exception as e:
+             print(f"An unexpected error occurred: {e}")
+             return False
+
+    def search_stores(self, search_term):
+        from Stores import store_cl
+        sql = """
+              SELECT StoreName, StreetAddress, City, State, ZipCode, StoreID FROM Stores WHERE StoreName LIKE ?
+              """
+        params = (f"%{search_term}%")
+
+        found_stores=[]
+
+        with pyodbc.connect(self.conn_str) as conn:
+            with conn.cursor() as cursor:
+                try:
+                    cursor.execute(sql,params)
+                    rows = cursor.fetchall()
+                    for row in rows:
+                        new_obj = store_cl(row[0], row[1], row[2], row[3], row[4], row[5])
+                        found_stores.append(new_obj)
+                    return found_stores
+                except pyodbc.Error as err:
+                    print(f"A SQL specific error occurred: {err}")
+                except Exception as e:
+                    print(f"An unexpected error occurred: {e}")

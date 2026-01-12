@@ -1,4 +1,4 @@
-class store:
+class store_cl:
     def __init__(self, name: str, street_address: str, city: str, state: str, zip_code: str,store_id: int = None):
         self.name = name
         self.store_id = store_id # Database primary key
