@@ -5,19 +5,8 @@ import os
 import Grocery_Item
 
 class DatabaseManager:
-    def __init__(self,config_file='config.ini'):
-        
-        # Load the configuration file.
-        config = configparser.ConfigParser()
-        config.read(config_file)
-
-        # Create the DB connection
-        db_config = config['database']
-        self.conn_str = (
-                        f"Driver={db_config['driver']};"
-                        f"Server={db_config['server']};"
-                        f"Database={db_config['database']};"
-                        f"Trusted_Connection={db_config['trusted_connection']};")
+    def __init__(self,connection_string):
+        self.conn_str = connection_string
 
     def insert_item(self, item):
         # Take GroceryItem object and persists it to SQL
