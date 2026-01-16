@@ -165,3 +165,50 @@ class DatabaseManager:
                     print(f"A SQL specific error occurred: {err}")
                 except Exception as e:
                     print(f"An unexpected error occurred: {e}")
+
+    def upsert_price(self, item_id, store_id, price):
+        check_sql = "SELECT PriceID FROM Prices WHERE ItemID = ? AND StoreID = ?"
+
+        update_sql = "UPDATE Prices SET Price = ?, DateRecorded = GETDATE() WHERE ItemID = ? and StoreID = ?"
+        
+        insert_sql = """
+              INSERT INTO Prices (ItemID, StoreID, Price, DateRecorded)
+              VALUES (?, ?, ?, GETDATE())
+              """
+        params = (item_id, store_id, price)
+
+        try:
+            with pyodbc.connect(self.conn_str) as conn:
+                with conn.cursor() as cursor:
+                    # Check if item already has a price.
+                    cursor.execute(check_sql, (item_id, store_id))
+                    row = cursor.fetchone()
+
+                    # If yes, then update.
+                    if row:
+                        cursor.execute(update_sql, (price, item_id,store_id))
+                        print("Price updated successfully.")
+                    else:
+                        cursor.execute(insert_sql, (item_id, store_id, price))
+                        print("New price link created.")
+                    conn.commit()
+                    return True
+        except Exception as e:
+            print(f"Database error: {e}")
+            return False
+
+    def get_all_prices(self):
+        # Fetches all rows and converts them to Stores objects
+        from Price_Record import price_record
+
+        prices = []
+        sql = "SELECT ItemID, StoreID, Price, DateRecorded FROM Prices"
+
+        with pyodbc.connect(self.conn_str) as conn:
+                with conn.cursor() as cursor:
+                    cursor.execute(sql)
+                    rows = cursor.fetchall()
+                    for row in rows:
+                        new_obj = price_record(row[0], row[1], row[2], row[3])
+                        prices.append(new_obj)
+                    return prices

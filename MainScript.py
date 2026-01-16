@@ -1,5 +1,6 @@
 from Grocery_Item import grocery_item
 from Stores import store_cl
+from Price_Record import price_record
 from database_manager import DatabaseManager
 import configparser
 
@@ -23,6 +24,7 @@ def main_menu():
         print("\n=== GROCERY PLANNER 2026 ===")
         print("1. Manage Items")
         print("2. Manage Stores")
+        print("3. Manage Prices")
         print("Q. Exit")
 
         choice = input("\nSelect an option: ").lower()
@@ -31,6 +33,8 @@ def main_menu():
             item_submenu(db)
         elif choice == '2':
             store_submenu(db)
+        elif choice == '3':
+            prices_submenu(db)
         elif choice == 'q':
             print("Goodbye!")
             break
@@ -85,6 +89,9 @@ def item_submenu(db):
 
         elif choice == '5':
             break
+        
+        else:
+            print("Invalid selection.")
 
 def store_submenu(db):
     while True:
@@ -136,5 +143,34 @@ def store_submenu(db):
 
         elif choice == '5':
             break
+
+        else:
+            print("Invalid selection.")
+
+def prices_submenu(db):
+    while True:
+        print("\n--- PRICES MANAGEMENT ---")
+        print("1. Insert/Update Price")
+        print("2. View All Prices")
+        print("3. Back to Main Menu")
+        choice = input("Select an option: ").lower()
+
+        if choice == '1':
+            item_id = input("Enter the item ID: ")
+            store_id = input("Enter the store ID: ")
+            price = input("Enter the price of item: ")
+
+            db.upsert_price(item_id, store_id, price)
+
+        elif choice == '2':
+            prices = db.get_all_prices()
+            for p in prices:
+                print(p)
+
+        elif choice == '3':
+            break
+
+        else:
+            print("Invalid selection.")
 
 main_menu()

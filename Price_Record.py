@@ -9,3 +9,6 @@ class price_record:
         else:
             self.date_recorded = date_recorded # Last recorded date of price
         self.price_id = price_id
+
+    def __repr__(self):
+        return f"<Item ID: {self.item_id}, Store ID: {self.store_id}, Price: ${self.price}, Recorded On: {self.date_recorded}>"
