@@ -67,7 +67,7 @@ class DatabaseManager:
     def search_items(self, search_term):
         from Grocery_Item import grocery_item
         sql = """
-              SELECT ItemName, WeightOrCount, Units, DepartmentLocation FROM Items WHERE ItemName LIKE ?
+              SELECT ItemName, WeightOrCount, Units, DepartmentLocation, ItemID FROM Items WHERE ItemName LIKE ?
               """
         params = (f"%{search_term}%")
 
@@ -79,7 +79,7 @@ class DatabaseManager:
                     cursor.execute(sql,params)
                     rows = cursor.fetchall()
                     for row in rows:
-                        new_obj = grocery_item(row[0], row[1], row[2], row[3])
+                        new_obj = grocery_item(row[0], row[1], row[2], row[3], row[4])
                         found_items.append(new_obj)
                     return found_items
                 except pyodbc.Error as err:

@@ -1,8 +1,29 @@
+from multiprocessing import Value
 from Grocery_Item import grocery_item
 from Stores import store_cl
 from Price_Record import price_record
 from database_manager import DatabaseManager
 import configparser
+
+def search_and_select(items):
+    if items:
+        for idx, item in enumerate(items,1):
+            print(f"[{idx}] {item}")
+        while True:
+            try:
+                choice = int(input("Select a number or enter '0' to exit: "))
+                if choice == 0:
+                    return None
+                else:
+                    try:
+                        selected_item = items[choice-1]
+                        return selected_item
+
+                    except:
+                        print("Invalid Selection!")
+            except ValueError:
+                print("Not a valid input!")
+
 
 def main_menu():
 
@@ -156,11 +177,38 @@ def prices_submenu(db):
         choice = input("Select an option: ").lower()
 
         if choice == '1':
-            item_id = input("Enter the item ID: ")
-            store_id = input("Enter the store ID: ")
-            price = input("Enter the price of item: ")
+            while True:
+                item_name = input("Enter item to search: ")
+                found_items = db.search_items(item_name)
+                if found_items:
+                    item = search_and_select(found_items)
+                    if item:
+                        item_id = item.item_id
 
-            db.upsert_price(item_id, store_id, price)
+                    else:
+                        print("No item selected.")
+                        break
+                else:
+                    print(f"'{item_name}'' not found in database.")
+                    break
+
+                store_name = input("Enter store to search: ")
+                found_stores = db.search_stores(store_name)
+                if found_stores:
+                    store = search_and_select(found_stores)
+                    if store:
+                        store_id = store.store_id
+                    else:
+                        print("No store selected.")
+                        break
+                else:
+                    print(f"'{store_name}'' not found in database.")
+                    break
+
+                price = input("Enter the price of item: ")
+
+                db.upsert_price(item_id, store_id, price)
+                break
 
         elif choice == '2':
             prices = db.get_all_prices()
