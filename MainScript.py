@@ -1,4 +1,3 @@
-from multiprocessing import Value
 from Grocery_Item import grocery_item
 from Stores import store_cl
 from Price_Record import price_record
@@ -205,8 +204,11 @@ def prices_submenu(db):
                     print(f"'{store_name}'' not found in database.")
                     break
 
-                price = input("Enter the price of item: ")
-
+                try:
+                    price = float(input("Enter the price of item: "))
+                except ValueError:
+                    print("Invalid input, please enter a number for prices.")
+                    continue
                 db.upsert_price(item_id, store_id, price)
                 break
 
