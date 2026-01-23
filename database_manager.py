@@ -44,21 +44,21 @@ class DatabaseManager:
                         items.append(new_obj)
                     return items
 
-    def delete_item(self, item_name):
+    def delete_item(self, item):
         sql = """
-              DELETE FROM Items WHERE ItemName = ?
+              DELETE FROM Items WHERE ItemID = ?
               """
-        params = (item_name,)
+        params = (item.item_id,)
 
         try:
             with pyodbc.connect(self.conn_str) as conn:
                 with conn.cursor() as cursor:
                     cursor.execute(sql,params)
                     if cursor.rowcount == 0: # cursor.rowcount doesn't give the number of rows in the db, it gives the number of rows affected by the query.
-                        print(f"{item_name} does not exist in the database.")
+                        print(f"{item} does not exist in the database.")
                         return False
                     conn.commit()
-                    print(f"Successfully deleted {item_name} from the database.")
+                    print(f"Successfully deleted {item} from the database.")
                     return True
         except Exception as e:
              print(f"An unexpected error occurred: {e}")
@@ -123,21 +123,21 @@ class DatabaseManager:
                         stores.append(new_obj)
                     return stores
 
-    def delete_store(self, store_name):
+    def delete_store(self, store):
         sql = """
-              DELETE FROM Stores WHERE StoreName = ?
+              DELETE FROM Stores WHERE StoreID = ?
               """
-        params = (store_name,)
+        params = (store.store_id,)
 
         try:
             with pyodbc.connect(self.conn_str) as conn:
                 with conn.cursor() as cursor:
                     cursor.execute(sql,params)
                     if cursor.rowcount == 0: # cursor.rowcount doesn't give the number of rows in the db, it gives the number of rows affected by the query.
-                        print(f"{store_name} does not exist in the database.")
+                        print(f"{store} does not exist in the database.")
                         return False
                     conn.commit()
-                    print(f"Successfully deleted {store_name} from the database.")
+                    print(f"Successfully deleted {store} from the database.")
                     return True
         except Exception as e:
              print(f"An unexpected error occurred: {e}")

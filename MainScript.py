@@ -91,10 +91,22 @@ def item_submenu(db):
                 #print(f"{item.name} ({item.weight_or_count} {item.units}), {item.department_location} department.")
 
         elif choice == '3':
-            name = input(f"Enter the exact name of the item to delete: ")
-            confirm = input(f"Are you sure want to delete '{name}'? (y/n): ")
+            selected_item = None
+            name = input(f"Enter the name of the item to delete: ")
+            found_items = db.search_items(name)
+            if found_items:
+                selected_item = search_and_select(found_items)
+                if selected_item:
+                    confirm = input(f"Are you sure want to delete '{selected_item}'? (y/n): ")
+                else:
+                    print("No valid item selected.")
+                    confirm = 'n'
+            else:
+                print("No item selected.")
+                confirm = 'n'
+
             if confirm.lower() == 'y':
-                db.delete_item(name)
+                db.delete_item(selected_item)
             else:
                 print("Deletion cancelled.")
 
@@ -145,10 +157,22 @@ def store_submenu(db):
                 print(s)
 
         elif choice == '3':
-            name = input(f"Enter the exact name of the store to delete: ")
-            confirm = input(f"Are you sure want to delete '{name}'? (y/n): ")
+            selected_store = None
+            name = input(f"Enter the name of the store to delete: ")
+            found_stores = db.search_stores(name)
+            if found_stores:
+                selected_store = search_and_select(found_stores)
+                if selected_store:
+                    confirm = input(f"Are you sure want to delete '{selected_store}'? (y/n): ")
+                else:
+                    print("No valid store selected.")
+                    confirm = 'n'
+            else:
+                print("No store selected.")
+                confirm = 'n'
+
             if confirm.lower() == 'y':
-                db.delete_store(name)
+                db.delete_store(selected_store)
             else:
                 print("Deletion cancelled.")
 
