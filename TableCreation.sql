@@ -29,6 +29,17 @@ CREATE TABLE Prices(PriceID INT PRIMARY KEY IDENTITY(1,1),
 					CONSTRAINT FK_Price_Store FOREIGN KEY(StoreID) REFERENCES Stores(StoreID) ON DELETE CASCADE);
 END
 
+IF OBJECT_ID(N'dbo.StoreDistances',N'U') IS NULL BEGIN
+CREATE TABLE StoreDistances(DistanceID INT PRIMARY KEY IDENTITY(1,1),
+					StoreA_ID INT NOT NULL,
+					StoreB_ID INT NOT NULL,
+					TravelDistance_Minutes FLOAT NOT NULL,
+
+					CONSTRAINT FK_StoreA_ID FOREIGN KEY(StoreA_ID) REFERENCES Stores(StoreID) ON DELETE CASCADE, -- Defining the Foreing Keys to link back to the other tables.
+					CONSTRAINT FK_StoreB_ID FOREIGN KEY(StoreB_ID) REFERENCES Stores(StoreID) ON DELETE NO ACTION,
+					CONSTRAINT UQ_Route UNIQUE (StoreA_ID,StoreB_ID));
+END
+
 -- Commands to alter constraints on the created tables
 ALTER TABLE Prices
 DROP CONSTRAINT FK_Price_Item;
@@ -41,3 +52,13 @@ DROP CONSTRAINT FK_Price_Store;
 
 ALTER TABLE Prices
 ADD CONSTRAINT FK_Price_Store FOREIGN KEY (StoreID) REFERENCES Stores(StoreID) ON DELETE CASCADE;
+
+DROP TABLE dbo.StoreDistances;
+
+SET IDENTITY_INSERT dbo.Stores ON;
+INSERT INTO dbo.Stores (StoreID, StoreName, StreetAddress, City, State, ZipCode) VALUES(1,'Home','123 My Street','Shrewsbury','PA','17361');
+SET IDENTITY_INSERT dbo.Stores OFF;
+
+UPDATE dbo.Stores SET StoreName = 'Home', StreetAddress = '123 My Street', City = 'Shrewsbury', State = 'PA', ZipCode = '17361' WHERE StoreID = 1;
+
+SELECT * FROM dbo.Stores;

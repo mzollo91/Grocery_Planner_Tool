@@ -1,3 +1,4 @@
+from tracemalloc import start
 import pyodbc
 import configparser
 import os
@@ -124,6 +125,8 @@ class DatabaseManager:
                     return stores
 
     def delete_store(self, store):
+        cleanup_sql = "DELETE FROM StoreDistances WHERE StoreA_ID = ? OR StoreB_ID = ?"
+        
         sql = """
               DELETE FROM Stores WHERE StoreID = ?
               """
@@ -132,6 +135,7 @@ class DatabaseManager:
         try:
             with pyodbc.connect(self.conn_str) as conn:
                 with conn.cursor() as cursor:
+                    cursor.execute(cleanup_sql,store.store_id,store.store_id) # Delete affected distance rows first.
                     cursor.execute(sql,params)
                     if cursor.rowcount == 0: # cursor.rowcount doesn't give the number of rows in the db, it gives the number of rows affected by the query.
                         print(f"{store} does not exist in the database.")
@@ -212,3 +216,38 @@ class DatabaseManager:
                         new_obj = price_record(row[0], row[1], row[2], row[3])
                         prices.append(new_obj)
                     return prices
+
+    def add_distance(self,dist_obj):
+        
+        directions = [(dist_obj.store_id_a, dist_obj.store_id_b),
+                      (dist_obj.store_id_b, dist_obj.store_id_a)]
+        
+        check_sql = "SELECT DistanceID FROM StoreDistances WHERE StoreA_ID = ? AND StoreB_ID = ?"
+
+        update_sql = "UPDATE StoreDistances SET TravelDistance_Minutes = ? WHERE StoreA_ID = ? AND StoreB_ID = ?"
+        
+        insert_sql = """
+              INSERT INTO StoreDistances (StoreA_ID, StoreB_ID, TravelDistance_Minutes)
+              VALUES (?, ?, ?)
+              """
+        #params = (id_a, id_b, time)
+
+        try:
+            with pyodbc.connect(self.conn_str) as conn:
+                with conn.cursor() as cursor:
+                    for start_id, end_id in directions:
+                        # Check if item already has a price.
+                        cursor.execute(check_sql, (start_id, end_id))
+                        row = cursor.fetchone()
+
+                        # If yes, then update.
+                        if row:
+                            cursor.execute(update_sql, (dist_obj.travel_distance_minutes, start_id, end_id))
+                        else:
+                            cursor.execute(insert_sql, (start_id, end_id, dist_obj.travel_distance_minute))
+                    conn.commit()
+                    print(f"Bi-directional distance between {dist_obj.store_a_name} and {dist_obj.store_b_name} updated successfully.")
+                    return True
+        except Exception as e:
+            print(f"Database error: {e}")
+            return False
