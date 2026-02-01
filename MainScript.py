@@ -1,6 +1,7 @@
 from Grocery_Item import grocery_item
 from Stores import store_cl
 from Price_Record import price_record
+from Store_Distance import store_distance
 from database_manager import DatabaseManager
 import configparser
 
@@ -45,6 +46,7 @@ def main_menu():
         print("1. Manage Items")
         print("2. Manage Stores")
         print("3. Manage Prices")
+        print("4. Manage Distances")
         print("Q. Exit")
 
         choice = input("\nSelect an option: ").lower()
@@ -55,6 +57,8 @@ def main_menu():
             store_submenu(db)
         elif choice == '3':
             prices_submenu(db)
+        elif choice == '4':
+            distances_submenu(db)
         elif choice == 'q':
             print("Goodbye!")
             break
@@ -240,6 +244,70 @@ def prices_submenu(db):
             prices = db.get_all_prices()
             for p in prices:
                 print(p)
+
+        elif choice == '3':
+            break
+
+        else:
+            print("Invalid selection.")
+
+def distances_submenu(db):
+    while True:
+        print("\n--- STORE DISTANCES MANAGEMENT ---")
+        print("1. Insert/Update Distance")
+        print("2. View All Distances")
+        print("3. Back to Main Menu")
+        choice = input("Select an option: ").lower()
+
+        if choice == '1':
+            while True:
+                store_a_name = input("Start point store name: ")
+                found_stores = db.search_stores(store_a_name)
+                if found_stores:
+                    store_a = search_and_select(found_stores)
+                    if store_a:
+                        id_a = store_a.store_id
+
+                    else:
+                        print("No store selected.")
+                        break
+                else:
+                    print(f"'{store_a_name}'' not found in database.")
+                    break
+
+                store_b_name = input("End point store name: ")
+                found_stores = db.search_stores(store_b_name)
+                if found_stores:
+                    store_b = search_and_select(found_stores)
+                    if store_b:
+                        id_b = store_b.store_id
+
+                    else:
+                        print("No store selected.")
+                        break
+                else:
+                    print(f"'{store_b_name}'' not found in database.")
+                    break
+
+                try:
+                    distance_time = float(input("Enter the distance between locations in minutes: "))
+                except ValueError:
+                    print("Invalid input, please enter a number for distance.")
+                    continue
+                dist_obj = store_distance(store_a_id = id_a, store_a_name = store_a.name, store_b_id = id_b, store_b_name = store_b.name, travel_distance_minutes = distance_time)
+                dist_obj.save_to_db(db)
+                break
+
+        elif choice == '2':
+            distances = db.get_all_distances()
+            row = 1
+            for d in distances:
+                if row % 2 == 0:
+                    print(d)
+                else:
+                    print(f"\n{d}")
+                row += 1
+
 
         elif choice == '3':
             break

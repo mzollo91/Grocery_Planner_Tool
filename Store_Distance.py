@@ -1,5 +1,5 @@
 class store_distance:
-    def __init__(self, distance_id: int, store_a_id: int, store_a_name: str, store_b_id: int, store_b_name: str, travel_distance_minutes: float):
+    def __init__(self, store_a_id: int, store_a_name: str, store_b_id: int, store_b_name: str, travel_distance_minutes: float,distance_id: int=None):
         self.distance_id = distance_id # Database primary key
         self.store_a_id = store_a_id
         self.store_a_name = store_a_name

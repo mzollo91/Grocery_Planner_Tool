@@ -219,8 +219,8 @@ class DatabaseManager:
 
     def add_distance(self,dist_obj):
         
-        directions = [(dist_obj.store_id_a, dist_obj.store_id_b),
-                      (dist_obj.store_id_b, dist_obj.store_id_a)]
+        directions = [(dist_obj.store_a_id, dist_obj.store_b_id),
+                      (dist_obj.store_b_id, dist_obj.store_a_id)]
         
         check_sql = "SELECT DistanceID FROM StoreDistances WHERE StoreA_ID = ? AND StoreB_ID = ?"
 
@@ -244,10 +244,35 @@ class DatabaseManager:
                         if row:
                             cursor.execute(update_sql, (dist_obj.travel_distance_minutes, start_id, end_id))
                         else:
-                            cursor.execute(insert_sql, (start_id, end_id, dist_obj.travel_distance_minute))
+                            cursor.execute(insert_sql, (start_id, end_id, dist_obj.travel_distance_minutes))
                     conn.commit()
                     print(f"Bi-directional distance between {dist_obj.store_a_name} and {dist_obj.store_b_name} updated successfully.")
                     return True
         except Exception as e:
             print(f"Database error: {e}")
             return False
+
+    def get_all_distances(self):
+        # Fetches all rows and converts them to Stores objects
+        from Store_Distance import store_distance
+
+        distances = []
+        sql = "SELECT StoreA_ID, StoreB_ID, TravelDistance_Minutes, DistanceID FROM StoreDistances"
+
+        with pyodbc.connect(self.conn_str) as conn:
+                with conn.cursor() as cursor:
+                    cursor.execute(sql)
+                    rows = cursor.fetchall()
+                    for row in rows:
+                        sql_names = f"""
+                                    SELECT StoreName FROM dbo.Stores WHERE StoreID IN ({row[0]},{row[1]})
+                                    ORDER BY CASE
+                                        WHEN StoreID = {row[0]} THEN 1
+                                        WHEN StoreID = {row[1]} THEN 2
+                                    END;
+                                    """
+                        cursor.execute(sql_names)
+                        (store_a_name,), (store_b_name,) = cursor.fetchmany(2)
+                        new_obj = store_distance(row[0], store_a_name, row[1], store_b_name, row[2], row[3])
+                        distances.append(new_obj)
+                    return distances
