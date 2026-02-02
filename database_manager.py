@@ -253,26 +253,29 @@ class DatabaseManager:
             return False
 
     def get_all_distances(self):
-        # Fetches all rows and converts them to Stores objects
         from Store_Distance import store_distance
 
         distances = []
-        sql = "SELECT StoreA_ID, StoreB_ID, TravelDistance_Minutes, DistanceID FROM StoreDistances"
-
-        with pyodbc.connect(self.conn_str) as conn:
-                with conn.cursor() as cursor:
-                    cursor.execute(sql)
-                    rows = cursor.fetchall()
-                    for row in rows:
-                        sql_names = f"""
-                                    SELECT StoreName FROM dbo.Stores WHERE StoreID IN ({row[0]},{row[1]})
-                                    ORDER BY CASE
-                                        WHEN StoreID = {row[0]} THEN 1
-                                        WHEN StoreID = {row[1]} THEN 2
-                                    END;
-                                    """
-                        cursor.execute(sql_names)
-                        (store_a_name,), (store_b_name,) = cursor.fetchmany(2)
-                        new_obj = store_distance(row[0], store_a_name, row[1], store_b_name, row[2], row[3])
-                        distances.append(new_obj)
-                    return distances
+        sql = """
+              SELECT
+                d.DistanceID,
+                d.StoreA_ID, s1.StoreName,
+                d.StoreB_ID, s2.StoreName,
+                d.TravelDistance_Minutes
+              FROM StoreDistances d
+              JOIN Stores s1 ON d.StoreA_ID = s1.StoreID
+              JOIN Stores s2 ON d.StoreB_ID = s2.StoreID
+              """
+        try:
+            with pyodbc.connect(self.conn_str) as conn:
+                    with conn.cursor() as cursor:
+                        cursor.execute(sql)
+                        rows = cursor.fetchall()
+                        for row in rows:
+                            new_obj = store_distance(distance_id = row[0], store_a_id = row[1], store_a_name= row[2], store_b_id= row[3], store_b_name = row[4], 
+                                                     travel_distance_minutes = row[5])
+                            distances.append(new_obj)
+                        return distances
+        except Exception as e:
+            print(f"Error fetching distances: {e}")
+            return []
