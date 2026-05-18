@@ -1,4 +1,7 @@
+from logging import config
+
 from Grocery_Item import grocery_item
+from Pathfinder import Pathfinder
 from Stores import store_cl
 from Price_Record import price_record
 from Store_Distance import store_distance
@@ -316,3 +319,22 @@ def distances_submenu(db):
             print("Invalid selection.")
 
 main_menu()
+
+# Load the configuration file.
+config_file = 'config.ini'
+config = configparser.ConfigParser()
+config.read(config_file)
+
+# Create the DB connection
+db_config = config['database']
+conn_str = (f"Driver={db_config['driver']};"
+            f"Server={db_config['server']};"
+            f"Database={db_config['database']};"
+            f"Trusted_Connection={db_config['trusted_connection']};")
+    
+db = DatabaseManager(conn_str)
+pathfinder = Pathfinder(db)
+route, minutes = pathfinder.find_shortest_path("Home", "GIANT")
+
+print(f"Optimal Route: {' -> '.join(route)}")
+print(f"Total Travel Time: {minutes} minutes")
